@@ -9,26 +9,33 @@ if "%message%"=="" (
     exit /b
 )
 
-:: Git commands
+:: Commit uitvoeren
 git add .
 git commit -m "%message%"
 
 echo.
-echo Beschikbare branches:
+echo Beschikbare branches (lokaal + remote):
 echo.
 
 set count=0
 
-:: Branches ophalen
-for /f "delims=" %%b in ('git branch') do (
+for /f "delims=" %%b in ('git branch -a') do (
     set line=%%b
 
-    :: Sterretje verwijderen bij huidige branch
+    :: Sterretje verwijderen
     set line=!line:* =!
 
-    set /a count+=1
-    set branch[!count!]=!line!
-    echo !count!. !line!
+    :: HEAD regels overslaan
+    echo !line! | findstr "HEAD" >nul
+    if errorlevel 1 (
+
+        :: remotes/origin/ verwijderen
+        set clean=!line:remotes/origin/=!
+
+        set /a count+=1
+        set branch[!count!]=!clean!
+        echo !count!. !clean!
+    )
 )
 
 echo.
@@ -39,6 +46,19 @@ set selected=!branch[%choice%]!
 if "!selected!"=="" (
     echo Ongeldige keuze!
     exit /b
+)
+
+echo.
+echo Gekozen branch: !selected!
+
+:: Check of branch lokaal bestaat
+git show-ref --verify --quiet refs/heads/!selected!
+if errorlevel 1 (
+    echo Branch bestaat niet lokaal. Maak tracking branch...
+    git checkout -b !selected! origin/!selected!
+) else (
+    echo Branch bestaat lokaal. Checkout...
+    git checkout !selected!
 )
 
 echo.
