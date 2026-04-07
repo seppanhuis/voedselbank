@@ -14,27 +14,21 @@ git add .
 git commit -m "%message%"
 
 echo.
-echo Beschikbare branches (lokaal + remote):
+echo Beschikbare branches:
 echo.
 
 set count=0
 
-for /f "delims=" %%b in ('git branch -a') do (
+:: Branches ophalen
+for /f "delims=" %%b in ('git branch') do (
     set line=%%b
 
-    :: Huidige branch sterretje verwijderen
+    :: Sterretje verwijderen bij huidige branch
     set line=!line:* =!
 
-    :: "remotes/origin/" verwijderen
-    set line=!line:remotes/origin/=!
-
-    :: HEAD regels skippen
-    echo !line! | findstr "HEAD" >nul
-    if errorlevel 1 (
-        set /a count+=1
-        set branch[!count!]=!line!
-        echo !count!. !line!
-    )
+    set /a count+=1
+    set branch[!count!]=!line!
+    echo !count!. !line!
 )
 
 echo.
