@@ -12,10 +12,16 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'role'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable
 {
+    public const ROLE_DIRECTIE = 'directie';
+
+    public const ROLE_MAGAZIJNMEDEWERKER = 'magazijnmedewerker';
+
+    public const ROLE_VRIJWILLIGER = 'vrijwilliger';
+
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
@@ -30,6 +36,38 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Determine whether the user has a given role.
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->role === $role;
+    }
+
+    /**
+     * Determine whether the user is directie.
+     */
+    public function isDirectie(): bool
+    {
+        return $this->hasRole(self::ROLE_DIRECTIE);
+    }
+
+    /**
+     * Determine whether the user is magazijnmedewerker.
+     */
+    public function isMagazijnmedewerker(): bool
+    {
+        return $this->hasRole(self::ROLE_MAGAZIJNMEDEWERKER);
+    }
+
+    /**
+     * Determine whether the user is vrijwilliger.
+     */
+    public function isVrijwilliger(): bool
+    {
+        return $this->hasRole(self::ROLE_VRIJWILLIGER);
     }
 
     /**

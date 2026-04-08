@@ -7,9 +7,9 @@
 -- 01           08-04-2026      sep                 Genormaliseerd create-script Voedselbank
 -- ***************************************************************
 
-DROP DATABASE IF EXISTS `Voedselbank_Maaskantje`;
-CREATE DATABASE `Voedselbank_Maaskantje`;
-USE `Voedselbank_Maaskantje`;
+DROP DATABASE IF EXISTS `voedselbank`;
+CREATE DATABASE `voedselbank`;
+USE `voedselbank`;
 
 -- Step: 02
 -- *****************************************************************************************************
