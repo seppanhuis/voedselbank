@@ -4,7 +4,7 @@
 -- ***************************************************************
 -- Versie       Datum           Auteur              Omschrijving
 -- ******       *****           ******              ************
--- 01           08-04-2026      GitHub Copilot      Genormaliseerd create-script Voedselbank
+-- 01           08-04-2026      sep                 Genormaliseerd create-script Voedselbank
 -- ***************************************************************
 
 DROP DATABASE IF EXISTS `Voedselbank_Maaskantje`;
