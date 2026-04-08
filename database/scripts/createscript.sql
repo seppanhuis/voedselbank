@@ -1,196 +1,445 @@
+-- Step: 01
 -- ***************************************************************
--- Database: VoedselbankDB
+-- Doel : Maak een nieuwe database aan met de naam Voedselbank_Maaskantje
 -- ***************************************************************
-
-DROP DATABASE IF EXISTS `voedselbank`;
-CREATE DATABASE `voedselbank`;
-USE `voedselbank`;
-
--- ***************************************************************
--- TABEL: Categorie
+-- Versie       Datum           Auteur              Omschrijving
+-- ******       *****           ******              ************
+-- 01           08-04-2026      GitHub Copilot      Genormaliseerd create-script Voedselbank
 -- ***************************************************************
 
-CREATE TABLE Categorie
+DROP DATABASE IF EXISTS `Voedselbank_Maaskantje`;
+CREATE DATABASE `Voedselbank_Maaskantje`;
+USE `Voedselbank_Maaskantje`;
+
+-- Step: 02
+-- *****************************************************************************************************
+-- Doel : Maak een nieuwe tabel aan met de naam Adres
+-- *****************************************************************************************************
+
+CREATE TABLE Adres
 (
-     Id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT
-    ,Naam VARCHAR(100) NOT NULL
-    ,IsActief BIT NOT NULL DEFAULT 1
-    ,Opmerking VARCHAR(250) NULL
-    ,DatumAangemaakt DATETIME(6) NOT NULL
-    ,DatumGewijzigd DATETIME(6) NOT NULL
-    ,CONSTRAINT PK_Categorie PRIMARY KEY (Id)
+		 Id                         INT                 UNSIGNED    NOT NULL    AUTO_INCREMENT
+		,Straat                     VARCHAR(120)                    NOT NULL
+		,Huisnummer                 VARCHAR(10)                     NOT NULL
+		,Toevoeging                 VARCHAR(10)                         NULL    DEFAULT NULL
+		,Postcode                   VARCHAR(7)                      NOT NULL
+		,Plaats                     VARCHAR(80)                     NOT NULL
+		,Land                       VARCHAR(80)                     NOT NULL    DEFAULT 'Nederland'
+		,IsActief                   BIT                             NOT NULL    DEFAULT b'1'
+		,Opmerking                  VARCHAR(250)                        NULL    DEFAULT NULL
+		,DatumAangemaakt            DATETIME(6)                     NOT NULL
+		,DatumGewijzigd             DATETIME(6)                     NOT NULL
+		,CONSTRAINT PK_Adres_Id PRIMARY KEY (Id)
+		,CONSTRAINT UQ_Adres UNIQUE (Straat, Huisnummer, Toevoeging, Postcode, Plaats, Land)
 ) ENGINE=InnoDB;
 
-INSERT INTO Categorie (Naam, DatumAangemaakt, DatumGewijzigd) VALUES
- ('Groente en fruit', SYSDATE(6), SYSDATE(6)),
- ('Zuivel', SYSDATE(6), SYSDATE(6)),
- ('Dranken', SYSDATE(6), SYSDATE(6)),
- ('Snacks', SYSDATE(6), SYSDATE(6)),
- ('Hygiëne', SYSDATE(6), SYSDATE(6));
-
--- ***************************************************************
--- TABEL: Leverancier
--- ***************************************************************
+-- Step: 03
+-- *****************************************************************************************************
+-- Doel : Maak een nieuwe tabel aan met de naam Leverancier
+-- *****************************************************************************************************
 
 CREATE TABLE Leverancier
 (
-     Id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT
-    ,Bedrijfsnaam VARCHAR(100) NOT NULL
-    ,Adres VARCHAR(150) NOT NULL
-    ,Contactpersoon VARCHAR(100) NOT NULL
-    ,Email VARCHAR(100) NOT NULL
-    ,Telefoon VARCHAR(20) NOT NULL
-    ,VolgendeLevering DATETIME NOT NULL
-    ,IsActief BIT NOT NULL DEFAULT 1
-    ,Opmerking VARCHAR(250) NULL
-    ,DatumAangemaakt DATETIME(6) NOT NULL
-    ,DatumGewijzigd DATETIME(6) NOT NULL
-    ,CONSTRAINT PK_Leverancier PRIMARY KEY (Id)
+		 Id                         INT                 UNSIGNED    NOT NULL    AUTO_INCREMENT
+		,AdresId                    INT                 UNSIGNED    NOT NULL
+		,Bedrijfsnaam               VARCHAR(120)                    NOT NULL
+		,ContactpersoonNaam         VARCHAR(120)                    NOT NULL
+		,ContactpersoonEmail        VARCHAR(150)                    NOT NULL
+		,Telefoon                   VARCHAR(20)                     NOT NULL
+		,EerstvolgendeLevering      DATETIME                        NOT NULL
+		,IsActief                   BIT                             NOT NULL    DEFAULT b'1'
+		,Opmerking                  VARCHAR(250)                        NULL    DEFAULT NULL
+		,DatumAangemaakt            DATETIME(6)                     NOT NULL
+		,DatumGewijzigd             DATETIME(6)                     NOT NULL
+		,CONSTRAINT PK_Leverancier_Id PRIMARY KEY (Id)
+		,CONSTRAINT UQ_Leverancier_Bedrijfsnaam UNIQUE (Bedrijfsnaam)
+		,CONSTRAINT UQ_Leverancier_ContactpersoonEmail UNIQUE (ContactpersoonEmail)
+		,CONSTRAINT FK_Leverancier_Adres FOREIGN KEY (AdresId) REFERENCES Adres(Id)
+			ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
-INSERT INTO Leverancier (Bedrijfsnaam, Adres, Contactpersoon, Email, Telefoon, VolgendeLevering, DatumAangemaakt, DatumGewijzigd) VALUES
- ('Jumbo','Straat 1','Jan','jan@jumbo.nl','0611111111',SYSDATE(),SYSDATE(6),SYSDATE(6)),
- ('AH','Straat 2','Piet','piet@ah.nl','0622222222',SYSDATE(),SYSDATE(6),SYSDATE(6)),
- ('Lidl','Straat 3','Klaas','klaas@lidl.nl','0633333333',SYSDATE(),SYSDATE(6),SYSDATE(6)),
- ('Boer BV','Straat 4','Henk','henk@boer.nl','0644444444',SYSDATE(),SYSDATE(6),SYSDATE(6)),
- ('Makro','Straat 5','Sara','sara@makro.nl','0655555555',SYSDATE(),SYSDATE(6),SYSDATE(6));
+-- Step: 04
+-- *****************************************************************************************************
+-- Doel : Maak een nieuwe tabel aan met de naam Categorie
+-- *****************************************************************************************************
 
--- ***************************************************************
--- TABEL: Product
--- ***************************************************************
+CREATE TABLE Categorie
+(
+		 Id                         INT                 UNSIGNED    NOT NULL    AUTO_INCREMENT
+		,CategorieNaam              VARCHAR(100)                    NOT NULL
+		,IsActief                   BIT                             NOT NULL    DEFAULT b'1'
+		,Opmerking                  VARCHAR(250)                        NULL    DEFAULT NULL
+		,DatumAangemaakt            DATETIME(6)                     NOT NULL
+		,DatumGewijzigd             DATETIME(6)                     NOT NULL
+		,CONSTRAINT PK_Categorie_Id PRIMARY KEY (Id)
+		,CONSTRAINT UQ_Categorie_CategorieNaam UNIQUE (CategorieNaam)
+) ENGINE=InnoDB;
+
+-- Step: 05
+-- *****************************************************************************************************
+-- Doel : Maak een nieuwe tabel aan met de naam Product
+-- *****************************************************************************************************
 
 CREATE TABLE Product
 (
-     Id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT
-    ,Naam VARCHAR(100) NOT NULL UNIQUE
-    ,EAN VARCHAR(13) NOT NULL UNIQUE
-    ,Aantal INT NOT NULL
-    ,CategorieId SMALLINT UNSIGNED NOT NULL
-    ,LeverancierId SMALLINT UNSIGNED NOT NULL
-    ,IsActief BIT NOT NULL DEFAULT 1
-    ,Opmerking VARCHAR(250) NULL
-    ,DatumAangemaakt DATETIME(6) NOT NULL
-    ,DatumGewijzigd DATETIME(6) NOT NULL
-    ,CONSTRAINT PK_Product PRIMARY KEY (Id)
-    ,CONSTRAINT FK_Product_Categorie FOREIGN KEY (CategorieId) REFERENCES Categorie(Id)
-    ,CONSTRAINT FK_Product_Leverancier FOREIGN KEY (LeverancierId) REFERENCES Leverancier(Id)
+		 Id                         INT                 UNSIGNED    NOT NULL    AUTO_INCREMENT
+		,CategorieId                INT                 UNSIGNED    NOT NULL
+		,LeverancierId              INT                 UNSIGNED    NOT NULL
+		,ProductNaam                VARCHAR(150)                    NOT NULL
+		,EAN                        CHAR(13)                        NOT NULL
+		,AantalOpVoorraad           INT                 UNSIGNED    NOT NULL    DEFAULT 0
+		,Eenheid                    VARCHAR(20)                     NOT NULL    DEFAULT 'stuks'
+		,HoudbaarTot                DATE                                NULL    DEFAULT NULL
+		,IsActief                   BIT                             NOT NULL    DEFAULT b'1'
+		,Opmerking                  VARCHAR(250)                        NULL    DEFAULT NULL
+		,DatumAangemaakt            DATETIME(6)                     NOT NULL
+		,DatumGewijzigd             DATETIME(6)                     NOT NULL
+		,CONSTRAINT PK_Product_Id PRIMARY KEY (Id)
+		,CONSTRAINT UQ_Product_ProductNaam UNIQUE (ProductNaam)
+		,CONSTRAINT UQ_Product_EAN UNIQUE (EAN)
+		,CONSTRAINT FK_Product_Categorie FOREIGN KEY (CategorieId) REFERENCES Categorie(Id)
+			ON UPDATE CASCADE ON DELETE RESTRICT
+		,CONSTRAINT FK_Product_Leverancier FOREIGN KEY (LeverancierId) REFERENCES Leverancier(Id)
+			ON UPDATE CASCADE ON DELETE RESTRICT
+		,CONSTRAINT CHK_Product_EAN_Lengte CHECK (CHAR_LENGTH(EAN) = 13)
 ) ENGINE=InnoDB;
 
-INSERT INTO Product (Naam, EAN, Aantal, CategorieId, LeverancierId, DatumAangemaakt, DatumGewijzigd) VALUES
- ('Appel','1111111111111',100,1,1,SYSDATE(6),SYSDATE(6)),
- ('Melk','2222222222222',50,2,2,SYSDATE(6),SYSDATE(6)),
- ('Cola','3333333333333',80,3,3,SYSDATE(6),SYSDATE(6)),
- ('Chips','4444444444444',60,4,4,SYSDATE(6),SYSDATE(6)),
- ('Shampoo','5555555555555',40,5,5,SYSDATE(6),SYSDATE(6));
-
--- ***************************************************************
--- TABEL: Klant
--- ***************************************************************
+-- Step: 06
+-- *****************************************************************************************************
+-- Doel : Maak een nieuwe tabel aan met de naam Klant
+-- *****************************************************************************************************
 
 CREATE TABLE Klant
 (
-     Id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT
-    ,Naam VARCHAR(100) NOT NULL
-    ,Adres VARCHAR(150) NOT NULL
-    ,Telefoon VARCHAR(20) NOT NULL
-    ,Email VARCHAR(100) NOT NULL
-    ,Volwassenen TINYINT NOT NULL
-    ,Kinderen TINYINT NOT NULL
-    ,Babys TINYINT NOT NULL
-    ,IsActief BIT NOT NULL DEFAULT 1
-    ,Opmerking VARCHAR(250) NULL
-    ,DatumAangemaakt DATETIME(6) NOT NULL
-    ,DatumGewijzigd DATETIME(6) NOT NULL
-    ,CONSTRAINT PK_Klant PRIMARY KEY (Id)
+		 Id                         INT                 UNSIGNED    NOT NULL    AUTO_INCREMENT
+		,AdresId                    INT                 UNSIGNED    NOT NULL
+		,GezinsNaam                 VARCHAR(120)                    NOT NULL
+		,Telefoon                   VARCHAR(20)                     NOT NULL
+		,Email                      VARCHAR(150)                    NOT NULL
+		,AantalVolwassenen          TINYINT             UNSIGNED    NOT NULL
+		,AantalKinderen             TINYINT             UNSIGNED    NOT NULL
+		,AantalBabys                TINYINT             UNSIGNED    NOT NULL
+		,IsActief                   BIT                             NOT NULL    DEFAULT b'1'
+		,Opmerking                  VARCHAR(250)                        NULL    DEFAULT NULL
+		,DatumAangemaakt            DATETIME(6)                     NOT NULL
+		,DatumGewijzigd             DATETIME(6)                     NOT NULL
+		,CONSTRAINT PK_Klant_Id PRIMARY KEY (Id)
+		,CONSTRAINT UQ_Klant_Email UNIQUE (Email)
+		,CONSTRAINT FK_Klant_Adres FOREIGN KEY (AdresId) REFERENCES Adres(Id)
+			ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
-INSERT INTO Klant (Naam, Adres, Telefoon, Email, Volwassenen, Kinderen, Babys, DatumAangemaakt, DatumGewijzigd) VALUES
- ('Jansen','Straat 10','0611111111','jansen@mail.nl',2,2,1,SYSDATE(6),SYSDATE(6)),
- ('Pieters','Straat 11','0622222222','piet@mail.nl',2,1,0,SYSDATE(6),SYSDATE(6)),
- ('Klaas','Straat 12','0633333333','klaas@mail.nl',1,2,0,SYSDATE(6),SYSDATE(6)),
- ('Henk','Straat 13','0644444444','henk@mail.nl',2,0,0,SYSDATE(6),SYSDATE(6)),
- ('Sara','Straat 14','0655555555','sara@mail.nl',1,1,1,SYSDATE(6),SYSDATE(6));
+-- Step: 07
+-- *****************************************************************************************************
+-- Doel : Maak een nieuwe tabel aan met de naam SpecifiekeWens
+-- *****************************************************************************************************
 
--- ***************************************************************
--- TABEL: Wens
--- ***************************************************************
-
-CREATE TABLE Wens
+CREATE TABLE SpecifiekeWens
 (
-     Id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT
-    ,Omschrijving VARCHAR(100) NOT NULL
-    ,IsActief BIT NOT NULL DEFAULT 1
-    ,Opmerking VARCHAR(250) NULL
-    ,DatumAangemaakt DATETIME(6) NOT NULL
-    ,DatumGewijzigd DATETIME(6) NOT NULL
-    ,CONSTRAINT PK_Wens PRIMARY KEY (Id)
+		 Id                         INT                 UNSIGNED    NOT NULL    AUTO_INCREMENT
+		,WensNaam                   VARCHAR(120)                    NOT NULL
+		,WensType                   VARCHAR(30)                     NOT NULL
+		,IsActief                   BIT                             NOT NULL    DEFAULT b'1'
+		,Opmerking                  VARCHAR(250)                        NULL    DEFAULT NULL
+		,DatumAangemaakt            DATETIME(6)                     NOT NULL
+		,DatumGewijzigd             DATETIME(6)                     NOT NULL
+		,CONSTRAINT PK_SpecifiekeWens_Id PRIMARY KEY (Id)
+		,CONSTRAINT UQ_SpecifiekeWens_WensNaam UNIQUE (WensNaam)
 ) ENGINE=InnoDB;
 
-INSERT INTO Wens (Omschrijving, DatumAangemaakt, DatumGewijzigd) VALUES
- ('Geen varkensvlees',SYSDATE(6),SYSDATE(6)),
- ('Gluten allergie',SYSDATE(6),SYSDATE(6)),
- ('Vegan',SYSDATE(6),SYSDATE(6)),
- ('Vegetarisch',SYSDATE(6),SYSDATE(6)),
- ('Lactose intolerant',SYSDATE(6),SYSDATE(6));
+-- Step: 08
+-- *****************************************************************************************************
+-- Doel : Maak een nieuwe tabel aan met de naam KlantSpecifiekeWens
+-- *****************************************************************************************************
 
--- ***************************************************************
--- TABEL: KlantWens
--- ***************************************************************
-
-CREATE TABLE KlantWens
+CREATE TABLE KlantSpecifiekeWens
 (
-     Id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT
-    ,KlantId SMALLINT UNSIGNED NOT NULL
-    ,WensId SMALLINT UNSIGNED NOT NULL
-    ,IsActief BIT NOT NULL DEFAULT 1
-    ,Opmerking VARCHAR(250) NULL
-    ,DatumAangemaakt DATETIME(6) NOT NULL
-    ,DatumGewijzigd DATETIME(6) NOT NULL
-    ,CONSTRAINT PK_KlantWens PRIMARY KEY (Id)
-    ,CONSTRAINT FK_KlantWens_Klant FOREIGN KEY (KlantId) REFERENCES Klant(Id)
-    ,CONSTRAINT FK_KlantWens_Wens FOREIGN KEY (WensId) REFERENCES Wens(Id)
+		 Id                         INT                 UNSIGNED    NOT NULL    AUTO_INCREMENT
+		,KlantId                    INT                 UNSIGNED    NOT NULL
+		,SpecifiekeWensId           INT                 UNSIGNED    NOT NULL
+		,IsActief                   BIT                             NOT NULL    DEFAULT b'1'
+		,Opmerking                  VARCHAR(250)                        NULL    DEFAULT NULL
+		,DatumAangemaakt            DATETIME(6)                     NOT NULL
+		,DatumGewijzigd             DATETIME(6)                     NOT NULL
+		,CONSTRAINT PK_KlantSpecifiekeWens_Id PRIMARY KEY (Id)
+		,CONSTRAINT UQ_KlantSpecifiekeWens UNIQUE (KlantId, SpecifiekeWensId)
+		,CONSTRAINT FK_KlantSpecifiekeWens_Klant FOREIGN KEY (KlantId) REFERENCES Klant(Id)
+			ON UPDATE CASCADE ON DELETE RESTRICT
+		,CONSTRAINT FK_KlantSpecifiekeWens_SpecifiekeWens FOREIGN KEY (SpecifiekeWensId) REFERENCES SpecifiekeWens(Id)
+			ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
--- ***************************************************************
--- TABEL: Voedselpakket
--- ***************************************************************
+-- Step: 09
+-- *****************************************************************************************************
+-- Doel : Maak een nieuwe tabel aan met de naam Voedselpakket
+-- *****************************************************************************************************
 
 CREATE TABLE Voedselpakket
 (
-     Id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT
-    ,KlantId SMALLINT UNSIGNED NOT NULL
-    ,DatumSamenstelling DATE NOT NULL
-    ,DatumUitgifte DATE NULL
-    ,IsActief BIT NOT NULL DEFAULT 1
-    ,Opmerking VARCHAR(250) NULL
-    ,DatumAangemaakt DATETIME(6) NOT NULL
-    ,DatumGewijzigd DATETIME(6) NOT NULL
-    ,CONSTRAINT PK_Voedselpakket PRIMARY KEY (Id)
-    ,CONSTRAINT FK_Pakket_Klant FOREIGN KEY (KlantId) REFERENCES Klant(Id)
+		 Id                         INT                 UNSIGNED    NOT NULL    AUTO_INCREMENT
+		,KlantId                    INT                 UNSIGNED    NOT NULL
+		,DatumSamengesteld          DATE                            NOT NULL
+		,DatumUitgifte              DATE                                NULL    DEFAULT NULL
+		,PakketStatus               VARCHAR(20)                     NOT NULL    DEFAULT 'Samengesteld'
+		,IsActief                   BIT                             NOT NULL    DEFAULT b'1'
+		,Opmerking                  VARCHAR(250)                        NULL    DEFAULT NULL
+		,DatumAangemaakt            DATETIME(6)                     NOT NULL
+		,DatumGewijzigd             DATETIME(6)                     NOT NULL
+		,CONSTRAINT PK_Voedselpakket_Id PRIMARY KEY (Id)
+		,CONSTRAINT FK_Voedselpakket_Klant FOREIGN KEY (KlantId) REFERENCES Klant(Id)
+			ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB;
 
-INSERT INTO Voedselpakket (KlantId, DatumSamenstelling, DatumUitgifte, DatumAangemaakt, DatumGewijzigd) VALUES
- (1,DATE(SYSDATE()),DATE(SYSDATE()),SYSDATE(6),SYSDATE(6)),
- (2,DATE(SYSDATE()),DATE(SYSDATE()),SYSDATE(6),SYSDATE(6)),
- (3,DATE(SYSDATE()),DATE(SYSDATE()),SYSDATE(6),SYSDATE(6)),
- (4,DATE(SYSDATE()),DATE(SYSDATE()),SYSDATE(6),SYSDATE(6)),
- (5,DATE(SYSDATE()),DATE(SYSDATE()),SYSDATE(6),SYSDATE(6));
+-- Step: 10
+-- *****************************************************************************************************
+-- Doel : Maak een nieuwe tabel aan met de naam VoedselpakketProduct
+-- *****************************************************************************************************
 
--- ***************************************************************
--- TABEL: PakketProduct
--- ***************************************************************
-
-CREATE TABLE PakketProduct
+CREATE TABLE VoedselpakketProduct
 (
-     Id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT
-    ,PakketId SMALLINT UNSIGNED NOT NULL
-    ,ProductId SMALLINT UNSIGNED NOT NULL
-    ,Aantal INT NOT NULL
-    ,IsActief BIT NOT NULL DEFAULT 1
-    ,Opmerking VARCHAR(250) NULL
-    ,DatumAangemaakt DATETIME(6) NOT NULL
-    ,DatumGewijzigd DATETIME(6) NOT NULL
-    ,CONSTRAINT PK_PakketProduct PRIMARY KEY (Id)
-    ,CONSTRAINT FK_PP_Pakket FOREIGN KEY (PakketId) REFERENCES Voedselpakket(Id)
-    ,CONSTRAINT FK_PP_Product FOREIGN KEY (ProductId) REFERENCES Product(Id)
+		 Id                         INT                 UNSIGNED    NOT NULL    AUTO_INCREMENT
+		,VoedselpakketId            INT                 UNSIGNED    NOT NULL
+		,ProductId                  INT                 UNSIGNED    NOT NULL
+		,Aantal                     SMALLINT            UNSIGNED    NOT NULL
+		,IsActief                   BIT                             NOT NULL    DEFAULT b'1'
+		,Opmerking                  VARCHAR(250)                        NULL    DEFAULT NULL
+		,DatumAangemaakt            DATETIME(6)                     NOT NULL
+		,DatumGewijzigd             DATETIME(6)                     NOT NULL
+		,CONSTRAINT PK_VoedselpakketProduct_Id PRIMARY KEY (Id)
+		,CONSTRAINT UQ_VoedselpakketProduct UNIQUE (VoedselpakketId, ProductId)
+		,CONSTRAINT FK_VoedselpakketProduct_Voedselpakket FOREIGN KEY (VoedselpakketId) REFERENCES Voedselpakket(Id)
+			ON UPDATE CASCADE ON DELETE RESTRICT
+		,CONSTRAINT FK_VoedselpakketProduct_Product FOREIGN KEY (ProductId) REFERENCES Product(Id)
+			ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB;
+
+-- Step: 11
+-- *****************************************************************
+-- Doel : Vul de tabel Adres met gegevens (minimaal 5)
+-- *****************************************************************
+
+INSERT INTO Adres
+(
+		 Straat
+		,Huisnummer
+		,Toevoeging
+		,Postcode
+		,Plaats
+		,Land
+		,IsActief
+		,Opmerking
+		,DatumAangemaakt
+		,DatumGewijzigd
+)
+VALUES
+	('Hoofdstraat', '12', 'A', '5461AA', 'Veghel', 'Nederland', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Veldweg', '8', NULL, '5397LA', 'Lith', 'Nederland', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Dorpsstraat', '101', NULL, '5473BN', 'Heeswijk-Dinther', 'Nederland', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Industrieweg', '25', NULL, '5232CE', 'Den Bosch', 'Nederland', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Melkstraat', '4', NULL, '5405AB', 'Uden', 'Nederland', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Marktplein', '3', NULL, '5271AC', 'Sint-Michielsgestel', 'Nederland', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Molenstraat', '14', NULL, '5271ZK', 'Sint-Michielsgestel', 'Nederland', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Lijsterlaan', '7', NULL, '5271WE', 'Sint-Michielsgestel', 'Nederland', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Pastoorstraat', '28', 'B', '5271GA', 'Sint-Michielsgestel', 'Nederland', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Schutsboom', '51', NULL, '5271LP', 'Sint-Michielsgestel', 'Nederland', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Akkerweg', '2', NULL, '5271RH', 'Sint-Michielsgestel', 'Nederland', 1, NULL, SYSDATE(6), SYSDATE(6));
+
+-- Step: 12
+-- *****************************************************************
+-- Doel : Vul de tabel Leverancier met gegevens (minimaal 5)
+-- *****************************************************************
+
+INSERT INTO Leverancier
+(
+		 AdresId
+		,Bedrijfsnaam
+		,ContactpersoonNaam
+		,ContactpersoonEmail
+		,Telefoon
+		,EerstvolgendeLevering
+		,IsActief
+		,Opmerking
+		,DatumAangemaakt
+		,DatumGewijzigd
+)
+VALUES
+	(1, 'Jumbo Veghel', 'Iris van Dijk', 'inkoop@jumbo-veghel.nl', '+31 413 123456', '2026-04-10 09:00:00', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(2, 'Boer De Zonnedauw', 'Koen Vermeer', 'contact@zonnedauwboer.nl', '+31 412 456789', '2026-04-09 07:30:00', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(3, 'Bakkerij Van Mierlo', 'Nora van Mierlo', 'levering@bakkerijvanmierlo.nl', '+31 413 765432', '2026-04-11 06:15:00', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(4, 'Groothandel Maasland', 'Rachid El Hamidi', 'planning@maasland-groothandel.nl', '+31 73 8899001', '2026-04-12 08:45:00', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(5, 'Zuivelco Uden', 'Eline Smits', 'service@zuivelco-uden.nl', '+31 413 221199', '2026-04-09 10:00:00', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(6, 'Stichting Oogst Voor Elkaar', 'Milan de Groot', 'team@oogstvoorelkaar.nl', '+31 73 4455667', '2026-04-13 11:00:00', 1, 'Nieuw toegevoegd record in Leverancier', SYSDATE(6), SYSDATE(6));
+
+-- Step: 13
+-- *****************************************************************
+-- Doel : Vul de tabel Categorie met gegevens (minimaal 5)
+-- *****************************************************************
+
+INSERT INTO Categorie
+(
+		 CategorieNaam
+		,IsActief
+		,Opmerking
+		,DatumAangemaakt
+		,DatumGewijzigd
+)
+VALUES
+	('Aardappelen, groente, fruit', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Kaas, vleeswaren', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Zuivel, plantaardig en eieren', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Bakkerij en banket', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Frisdrank, sappen, koffie en thee', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Pasta, rijst en wereldkeuken', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Soepen, sauzen, kruiden en olie', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Snoep, koek, chips en chocolade', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Baby, verzorging en hygiene', 1, NULL, SYSDATE(6), SYSDATE(6));
+
+-- Step: 14
+-- *****************************************************************
+-- Doel : Vul de tabel Product met gegevens (minimaal 5)
+-- *****************************************************************
+
+INSERT INTO Product
+(
+		 CategorieId
+		,LeverancierId
+		,ProductNaam
+		,EAN
+		,AantalOpVoorraad
+		,Eenheid
+		,HoudbaarTot
+		,IsActief
+		,Opmerking
+		,DatumAangemaakt
+		,DatumGewijzigd
+)
+VALUES
+	(1, 2, 'Aardappelen 2kg', '8712345000001', 45, 'zak', '2026-06-30', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(1, 2, 'Wortelmix 1kg', '8712345000002', 30, 'zak', '2026-05-20', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(3, 5, 'Halfvolle melk 1L', '8712345000003', 80, 'pak', '2026-05-05', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(4, 3, 'Volkoren brood', '8712345000004', 25, 'stuks', '2026-04-12', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(6, 4, 'Penne 500g', '8712345000005', 60, 'pak', '2027-02-15', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(7, 4, 'Tomatensaus 500ml', '8712345000006', 50, 'fles', '2026-12-01', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(5, 1, 'Appelsap 1L', '8712345000007', 40, 'pak', '2026-11-10', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(9, 6, 'Babyvoeding 6+ maanden', '8712345000008', 20, 'pot', '2026-08-01', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(2, 1, 'Kipfiletplakjes 150g', '8712345000009', 18, 'verpakking', '2026-04-18', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(8, 1, 'Havermoutkoekjes 300g', '8712345000010', 35, 'pak', '2026-10-15', 1, NULL, SYSDATE(6), SYSDATE(6));
+
+-- Step: 15
+-- *****************************************************************
+-- Doel : Vul de tabel Klant met gegevens (minimaal 5)
+-- *****************************************************************
+
+INSERT INTO Klant
+(
+		 AdresId
+		,GezinsNaam
+		,Telefoon
+		,Email
+		,AantalVolwassenen
+		,AantalKinderen
+		,AantalBabys
+		,IsActief
+		,Opmerking
+		,DatumAangemaakt
+		,DatumGewijzigd
+)
+VALUES
+	(7, 'Familie Jansen', '+31 6 11223344', 'familie.jansen@mail.nl', 2, 2, 0, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(8, 'Familie Peters', '+31 6 22334455', 'familie.peters@mail.nl', 1, 1, 1, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(9, 'Familie El Idrissi', '+31 6 33445566', 'familie.elidrissi@mail.nl', 2, 3, 0, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(10, 'Familie De Vries', '+31 6 44556677', 'familie.devries@mail.nl', 2, 0, 0, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(11, 'Familie Koster', '+31 6 55667788', 'familie.koster@mail.nl', 1, 2, 0, 1, NULL, SYSDATE(6), SYSDATE(6));
+
+-- Step: 16
+-- *****************************************************************
+-- Doel : Vul de tabel SpecifiekeWens met gegevens (minimaal 5)
+-- *****************************************************************
+
+INSERT INTO SpecifiekeWens
+(
+		 WensNaam
+		,WensType
+		,IsActief
+		,Opmerking
+		,DatumAangemaakt
+		,DatumGewijzigd
+)
+VALUES
+	('Geen varkensvlees', 'Dieet', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Allergisch voor gluten', 'Allergie', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Allergisch voor pinda''s', 'Allergie', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Allergisch voor lactose', 'Allergie', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Vegetarisch', 'Dieet', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Veganistisch', 'Dieet', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,('Allergisch voor schaaldieren', 'Allergie', 1, NULL, SYSDATE(6), SYSDATE(6));
+
+-- Step: 17
+-- *****************************************************************
+-- Doel : Vul de tabel KlantSpecifiekeWens met gegevens (minimaal 5)
+-- *****************************************************************
+
+INSERT INTO KlantSpecifiekeWens
+(
+		 KlantId
+		,SpecifiekeWensId
+		,IsActief
+		,Opmerking
+		,DatumAangemaakt
+		,DatumGewijzigd
+)
+VALUES
+	(1, 2, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(2, 4, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(2, 5, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(3, 1, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(3, 3, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(4, 5, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(5, 6, 1, NULL, SYSDATE(6), SYSDATE(6));
+
+-- Step: 18
+-- *****************************************************************
+-- Doel : Vul de tabel Voedselpakket met gegevens (minimaal 5)
+-- *****************************************************************
+
+INSERT INTO Voedselpakket
+(
+		 KlantId
+		,DatumSamengesteld
+		,DatumUitgifte
+		,PakketStatus
+		,IsActief
+		,Opmerking
+		,DatumAangemaakt
+		,DatumGewijzigd
+)
+VALUES
+	(1, '2026-04-02', '2026-04-03', 'Uitgereikt', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(2, '2026-04-02', '2026-04-03', 'Uitgereikt', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(3, '2026-04-02', '2026-04-03', 'Uitgereikt', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(4, '2026-04-09', NULL, 'Samengesteld', 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(5, '2026-04-09', NULL, 'Samengesteld', 1, NULL, SYSDATE(6), SYSDATE(6));
+
+-- Step: 19
+-- *****************************************************************
+-- Doel : Vul de tabel VoedselpakketProduct met gegevens (minimaal 5)
+-- *****************************************************************
+
+INSERT INTO VoedselpakketProduct
+(
+		 VoedselpakketId
+		,ProductId
+		,Aantal
+		,IsActief
+		,Opmerking
+		,DatumAangemaakt
+		,DatumGewijzigd
+)
+VALUES
+	(1, 1, 1, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(1, 3, 2, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(1, 4, 1, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(2, 2, 1, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(2, 8, 2, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(3, 5, 2, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(3, 6, 1, 1, NULL, SYSDATE(6), SYSDATE(6));
