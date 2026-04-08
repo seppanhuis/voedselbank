@@ -1,3 +1,7 @@
+@php
+    use Illuminate\Support\Carbon;
+@endphp
+
 <x-layouts::app :title="$title">
     <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
         <div class="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-zinc-900">
@@ -28,7 +32,7 @@
                                 <tr class="align-top">
                                     <td class="px-3 py-2 text-zinc-900 dark:text-zinc-100">{{ $klant->GezinsNaam }}</td>
                                     <td class="px-3 py-2 text-zinc-700 dark:text-zinc-300">
-                                        {{ $klant->GeboorteDatum ? \Illuminate\Support\Carbon::parse($klant->GeboorteDatum)->format('d-m-Y') : '-' }}
+                                        {{ $klant->GeboorteDatum ? Carbon::parse($klant->GeboorteDatum)->format('d-m-Y') : '-' }}
                                     </td>
                                     <td class="px-3 py-2 text-zinc-700 dark:text-zinc-300">{{ $klant->Telefoon }}</td>
                                     <td class="px-3 py-2 text-zinc-700 dark:text-zinc-300">{{ $klant->Email }}</td>
