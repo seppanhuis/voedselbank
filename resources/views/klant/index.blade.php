@@ -5,11 +5,27 @@
 <x-layouts::app :title="$title">
     <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl">
         <div class="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-zinc-900">
+            @if (session('success'))
+                <div class="mb-4 flex items-center justify-between rounded-lg bg-green-50 p-3 text-green-800 dark:bg-green-900/20 dark:text-green-200" id="successAlert">
+                    <span>{{ session('success') }}</span>
+                    <button onclick="document.getElementById('successAlert').remove()" class="ml-auto text-green-600 hover:text-green-800 dark:text-green-300 dark:hover:text-green-100">
+                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </button>
+                </div>
+                <meta http-equiv="refresh" content="3">
+            @endif
+
             <div class="mb-4 flex items-center justify-between">
                 <h1 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100">{{ $title }}</h1>
-                <span class="rounded-md bg-zinc-100 px-3 py-1 text-sm font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
-                    {{ count($klanten) }} klanten
-                </span>
+                <div class="flex items-center gap-2">
+                    <span class="rounded-md bg-zinc-100 px-3 py-1 text-sm font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+                        {{ count($klanten) }} klanten
+                    </span>
+                    <a href="{{ route('klant.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 dark:hover:bg-blue-500">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Nieuwe klant
+                    </a>
+                </div>
             </div>
 
             @if (count($klanten) > 0)

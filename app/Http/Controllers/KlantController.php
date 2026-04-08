@@ -33,7 +33,12 @@ class KlantController extends Controller
      */
     public function create()
     {
-        //
+        $wensen = $this->klantModel->getAllWensen();
+
+        return view('klant.create', [
+            'title' => 'Nieuwe klant toevoegen',
+            'wensen' => $wensen
+        ]);
     }
 
     /**
@@ -41,7 +46,45 @@ class KlantController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'gezinsnaam' => 'required|string|max:120',
+            'geboortedatum' => 'nullable|date',
+            'telefoon' => 'required|string|max:20',
+            'email' => 'required|email|max:150|unique:Klant,Email',
+            'aantal_volwassenen' => 'required|integer|min:0',
+            'aantal_kinderen' => 'required|integer|min:0',
+            'aantal_babys' => 'required|integer|min:0',
+            'straat' => 'required|string|max:120',
+            'huisnummer' => 'required|string|max:10',
+            'postcode' => 'required|string|max:7',
+            'plaats' => 'required|string|max:80',
+            'wensen' => 'nullable|array',
+            'wensen.*' => 'integer|exists:SpecifiekeWens,Id',
+        ], [
+            'email.unique' => 'Dit e-mailadres is al in gebruik. Kies een ander e-mailadres of neem contact op met de beheerder.',
+        ]);
+
+        $newId = $this->klantModel->sp_CreateKlant(
+            $data['gezinsnaam'],
+            $data['geboortedatum'] ?? null,
+            $data['telefoon'],
+            $data['email'],
+            $data['aantal_volwassenen'],
+            $data['aantal_kinderen'],
+            $data['aantal_babys'],
+            $data['straat'],
+            $data['huisnummer'],
+            $data['postcode'],
+            $data['plaats']
+        );
+
+        if (!empty($data['wensen'])) {
+            $this->klantModel->addWensesToKlant($newId, $data['wensen']);
+        }
+
+        return redirect()
+            ->route('klant.index')
+            ->with('success', 'Klant ' . $data['gezinsnaam'] . ' succesvol toegevoegd');
     }
 
     /**
