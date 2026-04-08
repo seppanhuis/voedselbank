@@ -219,6 +219,7 @@ CREATE TABLE Klant
 		 Id                         INT                 UNSIGNED    NOT NULL    AUTO_INCREMENT
 		,KlantAdresId               INT                 UNSIGNED    NOT NULL
 		,GezinsNaam                 VARCHAR(120)                    NOT NULL
+		,GeboorteDatum              DATE                                NULL    DEFAULT NULL
 		,Telefoon                   VARCHAR(20)                     NOT NULL
 		,Email                      VARCHAR(150)                    NOT NULL
 		,AantalVolwassenen          TINYINT             UNSIGNED    NOT NULL
@@ -554,6 +555,7 @@ INSERT INTO Klant
 (
 		 KlantAdresId
 		,GezinsNaam
+		,GeboorteDatum
 		,Telefoon
 		,Email
 		,AantalVolwassenen
@@ -565,11 +567,11 @@ INSERT INTO Klant
 		,DatumGewijzigd
 )
 VALUES
-	(1, 'Familie Jansen', '+31 6 11223344', 'familie.jansen@mail.nl', 2, 2, 0, 1, NULL, SYSDATE(6), SYSDATE(6))
- ,(2, 'Familie Peters', '+31 6 22334455', 'familie.peters@mail.nl', 1, 1, 1, 1, NULL, SYSDATE(6), SYSDATE(6))
- ,(3, 'Familie El Idrissi', '+31 6 33445566', 'familie.elidrissi@mail.nl', 2, 3, 0, 1, NULL, SYSDATE(6), SYSDATE(6))
- ,(4, 'Familie De Vries', '+31 6 44556677', 'familie.devries@mail.nl', 2, 0, 0, 1, NULL, SYSDATE(6), SYSDATE(6))
- ,(5, 'Familie Koster', '+31 6 55667788', 'familie.koster@mail.nl', 1, 2, 0, 1, NULL, SYSDATE(6), SYSDATE(6));
+	(1, 'Familie Jansen', '1987-04-12', '+31 6 11223344', 'familie.jansen@mail.nl', 2, 2, 0, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(2, 'Familie Peters', '1992-09-03', '+31 6 22334455', 'familie.peters@mail.nl', 1, 1, 1, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(3, 'Familie El Idrissi', '1984-01-27', '+31 6 33445566', 'familie.elidrissi@mail.nl', 2, 3, 0, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(4, 'Familie De Vries', '1976-11-19', '+31 6 44556677', 'familie.devries@mail.nl', 2, 0, 0, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(5, 'Familie Koster', '1990-06-08', '+31 6 55667788', 'familie.koster@mail.nl', 1, 2, 0, 1, NULL, SYSDATE(6), SYSDATE(6));
 
 -- Step: 26
 -- *****************************************************************
