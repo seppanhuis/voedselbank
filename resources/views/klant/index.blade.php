@@ -15,6 +15,16 @@
                 <meta http-equiv="refresh" content="3">
             @endif
 
+            @if (session('error'))
+                <div class="mb-4 flex items-center justify-between rounded-lg bg-red-50 p-3 text-red-800 dark:bg-red-900/20 dark:text-red-200" id="errorAlert">
+                    <span>{{ session('error') }}</span>
+                    <button onclick="document.getElementById('errorAlert').remove()" class="ml-auto text-red-600 hover:text-red-800 dark:text-red-300 dark:hover:text-red-100">
+                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </button>
+                </div>
+                <meta http-equiv="refresh" content="3">
+            @endif
+
             <div class="mb-4 flex items-center justify-between">
                 <h1 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100">{{ $title }}</h1>
                 <div class="flex items-center gap-2">
@@ -40,7 +50,8 @@
                                 <th class="px-3 py-2 text-left font-semibold text-zinc-700 dark:text-zinc-200">Samenstelling</th>
                                 <th class="px-3 py-2 text-left font-semibold text-zinc-700 dark:text-zinc-200">Adres</th>
                                 <th class="px-3 py-2 text-left font-semibold text-zinc-700 dark:text-zinc-200">Wensen</th>
-                                <th class="px-3 py-2 text-left font-semibold text-zinc-700 dark:text-zinc-200">Acites</th>
+                                <th class="px-3 py-2 text-left font-semibold text-zinc-700 dark:text-zinc-200">Wijzigen</th>
+                                <th class="px-3 py-2 text-left font-semibold text-zinc-700 dark:text-zinc-200">Verwijderen</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
@@ -60,7 +71,25 @@
                                         {{ $klant->Postcode }} {{ $klant->Plaats }}, {{ $klant->Land }}
                                     </td>
                                     <td class="px-3 py-2 text-zinc-700 dark:text-zinc-300">{{ $klant->Wensen ?: '-' }}</td>
-                                    <td class="px-3 py-2 text-zinc-700 dark:text-zinc-300">nog geen acties</td>
+                                    <td class="px-3 py-2 text-zinc-700 dark:text-zinc-300">
+                                        <form action="{{ route('klant.edit', $klant->Id) }}" method="POST">
+                                            @csrf
+                                            @method('GET')
+                                            <button type="submit" class="inline-flex items-center rounded-md bg-amber-500 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-amber-600 dark:hover:bg-amber-400">
+                                                Wijzigen
+                                            </button>
+                                        </form>
+                                    </td>
+                                    <td class="px-3 py-2 text-zinc-700 dark:text-zinc-300">
+                                        <form action="{{ route('klant.destroy', $klant->Id) }}" method="POST"
+                                            onsubmit="return confirm('Weet je zeker dat je deze klant wilt verwijderen?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="inline-flex items-center rounded-md bg-red-600 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-red-700 dark:hover:bg-red-500">
+                                                Verwijderen
+                                            </button>
+                                        </form>
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
