@@ -12,7 +12,7 @@ class KlantModel extends Model
     public function sp_GetAllKlanten()
     {
         try {
-            // Haal alle klanten op via stored procedure.
+            // Haal alle klanten op via stored procedure :).
             $klanten = DB::select('CALL SP_GetAllKlanten()');
 
             Log::info('Klantgegevens opgehaald.', [
