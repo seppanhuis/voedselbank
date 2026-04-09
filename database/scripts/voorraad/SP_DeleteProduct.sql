@@ -1,5 +1,4 @@
 DROP PROCEDURE IF EXISTS SP_DeleteProduct;
-
 DELIMITER $$
 
 CREATE PROCEDURE SP_DeleteProduct(
