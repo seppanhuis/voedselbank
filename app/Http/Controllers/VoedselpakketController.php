@@ -38,6 +38,7 @@ class VoedselpakketController extends Controller
 
     private function pakketValidationRules(): array
     {
+        // Regels voor de volledige invoer van een pakket.
         return [
             'klant_id' => 'required|integer|exists:Klant,Id',
             'datum_samengesteld' => 'required|date',
@@ -50,6 +51,7 @@ class VoedselpakketController extends Controller
 
     private function pakketValidationMessages(): array
     {
+        // Duidelijke foutmeldingen in het Nederlands voor de gebruiker.
         return [
             'required' => ':attribute is verplicht.',
             'integer' => ':attribute moet een heel getal zijn.',
@@ -64,6 +66,7 @@ class VoedselpakketController extends Controller
 
     private function pakketValidationAttributes(): array
     {
+        // Leesbare veldnamen die in de foutmeldingen worden gebruikt.
         return [
             'klant_id' => 'klant',
             'datum_samengesteld' => 'datum samengesteld',
@@ -76,6 +79,7 @@ class VoedselpakketController extends Controller
 
     public function index(Request $request)
     {
+        // Overzichtspagina met alle voedselpakketten.
         $this->authorizeVoedselpakketBeheer();
 
         // Testmodus: als in de query 'empty' staat, tonen we expres geen pakketten.
@@ -91,6 +95,7 @@ class VoedselpakketController extends Controller
 
     public function create()
     {
+        // Formulier om een nieuw pakket aan te maken.
         $this->authorizeVoedselpakketBeheer();
 
         // Voor het samenstellen van een pakket hebben we klanten en producten nodig.
@@ -103,6 +108,7 @@ class VoedselpakketController extends Controller
 
     public function store(Request $request)
     {
+        // Verwerkt het opslaan van een nieuw voedselpakket.
         $this->authorizeVoedselpakketBeheer();
 
         // Basisvalidatie voor pakketgegevens en de regels per product.
@@ -174,6 +180,7 @@ class VoedselpakketController extends Controller
 
     public function show(int $id)
     {
+        // Detailpagina van één specifiek pakket.
         $this->authorizeVoedselpakketBeheer();
 
         // Detailgegevens van het pakket ophalen; zonder pakket stoppen we met 404.
@@ -190,6 +197,7 @@ class VoedselpakketController extends Controller
 
     public function edit(int $id)
     {
+        // Formulier om een bestaand pakket te bewerken.
         $this->authorizeVoedselpakketBeheer();
 
         // Eerst controleren of het pakket bestaat voordat we de bewerkpagina tonen.
@@ -208,6 +216,7 @@ class VoedselpakketController extends Controller
 
     public function update(Request $request, int $id)
     {
+        // Verwerkt alle wijzigingen aan een bestaand pakket.
         $this->authorizeVoedselpakketBeheer();
 
         // Zelfde validatie als bij opslaan, zodat de invoerregels consistent blijven.
@@ -266,6 +275,7 @@ class VoedselpakketController extends Controller
             DB::commit();
 
             if ($affected === 0) {
+                // Geen wijziging doorgegeven of record niet gevonden: terug met melding.
                 return back()
                     ->withInput()
                     ->with('error', 'Er is niets gewijzigd of het pakket bestaat niet.');
@@ -277,6 +287,7 @@ class VoedselpakketController extends Controller
         } catch (Throwable $e) {
             DB::rollBack();
 
+            // Loggen helpt bij het terugzoeken van fouten in productie.
             Log::error('Fout bij bijwerken van voedselpakket.', [
                 'pakket_id' => $id,
                 'melding' => $e->getMessage(),
@@ -290,12 +301,14 @@ class VoedselpakketController extends Controller
 
     public function destroy(int $id)
     {
+        // Verwijdert een pakket en toont daarna een succes- of foutmelding.
         $this->authorizeVoedselpakketBeheer();
 
         // Verwijderen gaat via de stored procedure, inclusief de bijbehorende meldingen.
         $result = $this->voedselpakketModel->sp_DeleteVoedselpakket($id);
 
         if (($result['affected'] ?? 0) > 0) {
+            // Bij succes terug naar het overzicht.
             return redirect()
                 ->route('voedselpakket.index')
                 ->with('success', 'Voedselpakket is succesvol verwijderd.');
