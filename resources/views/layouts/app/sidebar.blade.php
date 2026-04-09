@@ -15,9 +15,11 @@
                     <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                         {{ __('Dashboard') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="users" :href="route('klant.index')" :current="request()->routeIs('klant.index')" wire:navigate>
-                        {{ __('Klanten') }}
-                    </flux:sidebar.item>
+                    @if (auth()->check() && auth()->user()->isDirectie())
+                        <flux:sidebar.item icon="users" :href="route('klant.index')" :current="request()->routeIs('klant.*')" wire:navigate>
+                            {{ __('Klanten') }}
+                        </flux:sidebar.item>
+                    @endif
                     @if (auth()->check() && (auth()->user()->isDirectie() || auth()->user()->isMagazijnmedewerker()))
                         <flux:sidebar.item icon="truck" :href="route('leverancier.index')" :current="request()->routeIs('leverancier.*')" wire:navigate>
                             {{ __('Leveranciers') }}

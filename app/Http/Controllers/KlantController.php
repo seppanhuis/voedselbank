@@ -18,6 +18,14 @@ class KlantController extends Controller
         $this->klantModel = new KlantModel();
     }
 
+    private function authorizeKlantBeheer(): void
+    {
+        abort_unless(
+            auth()->check() && auth()->user()->isDirectie(),
+            403
+        );
+    }
+
     private function klantValidationRules(?int $id = null): array
     {
         // Bij update mag hetzelfde e-mailadres van de huidige klant blijven staan.
@@ -86,6 +94,8 @@ class KlantController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorizeKlantBeheer();
+
         // Als in de URL een querywaarde "empty" staat, simuleer een lege dataset.
         $simulateEmpty = collect($request->query())
             ->flatten()
@@ -105,6 +115,8 @@ class KlantController extends Controller
      */
     public function create()
     {
+        $this->authorizeKlantBeheer();
+
         // Nodig om checkboxen/selecties voor wensen te vullen.
         $wensen = $this->klantModel->getAllWensen();
 
@@ -119,6 +131,8 @@ class KlantController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorizeKlantBeheer();
+
         // Valideer invoer met Nederlandse meldingen.
         $data = $request->validate(
             $this->klantValidationRules(),
@@ -165,6 +179,8 @@ class KlantController extends Controller
      */
     public function edit($id)
     {
+        $this->authorizeKlantBeheer();
+
         $klant = $this->klantModel->sp_GetKlantById($id);
         abort_if(!$klant, 404);
 
@@ -185,6 +201,8 @@ class KlantController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $this->authorizeKlantBeheer();
+
         $validated = $request->validate(
             $this->klantValidationRules((int) $id),
             $this->klantValidationMessages(),
@@ -225,6 +243,8 @@ class KlantController extends Controller
      */
     public function destroy($id)
     {
+        $this->authorizeKlantBeheer();
+
         try {
             $klant = $this->klantModel->sp_GetKlantById($id);
 
