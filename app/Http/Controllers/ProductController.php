@@ -112,7 +112,7 @@ class ProductController extends Controller
         return view('voorraad.index', [
             'title' => 'Voorraad overzicht',
             'producten' => $this->sortProducts($producten, $sort, $direction),
-            'categorieen' => $this->productModel->getAllCategorieen(),
+            'categorieen' => $simulateEmpty ? [] : $this->productModel->getAllCategorieen(),
             'categorieId' => $categorieId,
             'sort' => $sort,
             'direction' => $direction,
