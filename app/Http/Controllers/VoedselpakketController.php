@@ -21,6 +21,7 @@ class VoedselpakketController extends Controller
 
     public function __construct()
     {
+        // Deze controller werkt met aparte modellen voor pakketten, klanten en producten.
         $this->voedselpakketModel = new VoedselpakketModel();
         $this->klantModel = new KlantModel();
         $this->productModel = new ProductModel();
@@ -28,7 +29,7 @@ class VoedselpakketController extends Controller
 
     private function authorizeVoedselpakketBeheer(): void
     {
-        // Vrijwilligers en directie mogen voedselpakketten samenstellen en beheren.
+        // Alleen vrijwilligers en directie mogen voedselpakketten beheren.
         abort_unless(
             auth()->check() && (auth()->user()->isDirectie() || auth()->user()->isVrijwilliger()),
             403
@@ -37,6 +38,7 @@ class VoedselpakketController extends Controller
 
     private function pakketValidationRules(): array
     {
+        // Regels voor de volledige invoer van een pakket.
         return [
             'klant_id' => 'required|integer|exists:Klant,Id',
             'datum_samengesteld' => 'required|date',
@@ -49,6 +51,7 @@ class VoedselpakketController extends Controller
 
     private function pakketValidationMessages(): array
     {
+        // Duidelijke foutmeldingen in het Nederlands voor de gebruiker.
         return [
             'required' => ':attribute is verplicht.',
             'integer' => ':attribute moet een heel getal zijn.',
@@ -63,6 +66,7 @@ class VoedselpakketController extends Controller
 
     private function pakketValidationAttributes(): array
     {
+        // Leesbare veldnamen die in de foutmeldingen worden gebruikt.
         return [
             'klant_id' => 'klant',
             'datum_samengesteld' => 'datum samengesteld',
@@ -75,9 +79,10 @@ class VoedselpakketController extends Controller
 
     public function index(Request $request)
     {
+        // Overzichtspagina met alle voedselpakketten.
         $this->authorizeVoedselpakketBeheer();
 
-        // Handige testmodus voor een lege overzichtspagina.
+        // Testmodus: als in de query 'empty' staat, tonen we expres geen pakketten.
         $simulateEmpty = collect($request->query())
             ->flatten()
             ->contains(static fn ($value) => strtolower((string) $value) === 'empty');
@@ -90,8 +95,10 @@ class VoedselpakketController extends Controller
 
     public function create()
     {
+        // Formulier om een nieuw pakket aan te maken.
         $this->authorizeVoedselpakketBeheer();
 
+        // Voor het samenstellen van een pakket hebben we klanten en producten nodig.
         return view('voedselpakket.create', [
             'title' => 'Voedselpakket samenstellen',
             'klanten' => $this->klantModel->sp_GetAllKlanten(),
@@ -101,14 +108,17 @@ class VoedselpakketController extends Controller
 
     public function store(Request $request)
     {
+        // Verwerkt het opslaan van een nieuw voedselpakket.
         $this->authorizeVoedselpakketBeheer();
 
+        // Basisvalidatie voor pakketgegevens en de regels per product.
         $validated = $request->validate(
             $this->pakketValidationRules(),
             $this->pakketValidationMessages(),
             $this->pakketValidationAttributes()
         );
 
+        // Producten worden eerst ingelezen zodat we voorraad kunnen controleren.
         $producten = collect($this->productModel->sp_GetAllProducten())->keyBy('Id');
 
         // Valideer voorraad vooraf, zodat we geen halve transacties krijgen.
@@ -129,9 +139,10 @@ class VoedselpakketController extends Controller
         }
 
         try {
-            // Bewaar pakket en pakketregels atomair in één transactie.
+            // Alles wordt in een transactie gedaan, zodat pakket en regels samen slagen of falen.
             DB::beginTransaction();
 
+            // De status hangt af van het feit of het pakket al uitgegeven is.
             $pakketStatus = $validated['datum_uitgifte'] ? 'Uitgereikt' : 'Samengesteld';
             $pakketId = $this->voedselpakketModel->sp_CreateVoedselpakket(
                 $validated['klant_id'],
@@ -140,6 +151,7 @@ class VoedselpakketController extends Controller
                 $pakketStatus
             );
 
+            // Daarna worden alle pakketregels een voor een opgeslagen.
             foreach ($validated['pakket_regels'] as $regel) {
                 $this->voedselpakketModel->sp_AddVoedselpakketProduct(
                     $pakketId,
@@ -168,8 +180,10 @@ class VoedselpakketController extends Controller
 
     public function show(int $id)
     {
+        // Detailpagina van één specifiek pakket.
         $this->authorizeVoedselpakketBeheer();
 
+        // Detailgegevens van het pakket ophalen; zonder pakket stoppen we met 404.
         $pakket = $this->voedselpakketModel->sp_GetVoedselpakketById($id);
 
         abort_if(!$pakket, 404);
@@ -183,8 +197,10 @@ class VoedselpakketController extends Controller
 
     public function edit(int $id)
     {
+        // Formulier om een bestaand pakket te bewerken.
         $this->authorizeVoedselpakketBeheer();
 
+        // Eerst controleren of het pakket bestaat voordat we de bewerkpagina tonen.
         $pakket = $this->voedselpakketModel->sp_GetVoedselpakketById($id);
 
         abort_if(!$pakket, 404);
@@ -200,26 +216,31 @@ class VoedselpakketController extends Controller
 
     public function update(Request $request, int $id)
     {
+        // Verwerkt alle wijzigingen aan een bestaand pakket.
         $this->authorizeVoedselpakketBeheer();
 
+        // Zelfde validatie als bij opslaan, zodat de invoerregels consistent blijven.
         $validated = $request->validate(
             $this->pakketValidationRules(),
             $this->pakketValidationMessages(),
             $this->pakketValidationAttributes()
         );
 
+        // Bestaand pakket ophalen om te controleren of bijwerken zinvol is.
         $pakket = $this->voedselpakketModel->sp_GetVoedselpakketById($id);
 
         abort_if(!$pakket, 404);
 
+        // Productgegevens worden opnieuw gebruikt voor voorraadcontrole.
         $producten = collect($this->productModel->sp_GetAllProducten())->keyBy('Id');
 
         try {
-            // Eerst oude regels opruimen (incl. voorraadherstel), daarna opnieuw opbouwen.
+            // Oude regels worden verwijderd en daarna opnieuw opgebouwd.
             DB::beginTransaction();
 
             $this->voedselpakketModel->sp_DeleteVoedselpakketProducten($id);
 
+            // Iedere nieuwe regel wordt apart gecontroleerd en daarna toegevoegd.
             foreach ($validated['pakket_regels'] as $index => $regel) {
                 $product = $producten->get((int) $regel['product_id']);
 
@@ -254,6 +275,7 @@ class VoedselpakketController extends Controller
             DB::commit();
 
             if ($affected === 0) {
+                // Geen wijziging doorgegeven of record niet gevonden: terug met melding.
                 return back()
                     ->withInput()
                     ->with('error', 'Er is niets gewijzigd of het pakket bestaat niet.');
@@ -265,6 +287,7 @@ class VoedselpakketController extends Controller
         } catch (Throwable $e) {
             DB::rollBack();
 
+            // Loggen helpt bij het terugzoeken van fouten in productie.
             Log::error('Fout bij bijwerken van voedselpakket.', [
                 'pakket_id' => $id,
                 'melding' => $e->getMessage(),
@@ -278,11 +301,14 @@ class VoedselpakketController extends Controller
 
     public function destroy(int $id)
     {
+        // Verwijdert een pakket en toont daarna een succes- of foutmelding.
         $this->authorizeVoedselpakketBeheer();
 
+        // Verwijderen gaat via de stored procedure, inclusief de bijbehorende meldingen.
         $result = $this->voedselpakketModel->sp_DeleteVoedselpakket($id);
 
         if (($result['affected'] ?? 0) > 0) {
+            // Bij succes terug naar het overzicht.
             return redirect()
                 ->route('voedselpakket.index')
                 ->with('success', 'Voedselpakket is succesvol verwijderd.');
