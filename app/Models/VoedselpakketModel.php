@@ -12,7 +12,7 @@ class VoedselpakketModel extends Model
     public function sp_GetAllVoedselpakketten()
     {
         try {
-            // Overzicht met klantnaam en totalen komt uit de stored procedure.
+            // Deze procedure levert het complete overzicht voor de lijstpagina.
             $pakketten = DB::select('CALL SP_GetAllVoedselpakketten()');
 
             Log::info('Voedselpakketten opgehaald.', [
@@ -32,6 +32,7 @@ class VoedselpakketModel extends Model
     public function sp_GetVoedselpakketById($id)
     {
         try {
+            // Eén pakket ophalen voor detail- en bewerkpagina's.
             return DB::selectOne('CALL SP_GetVoedselpakketById(:id)', [':id' => $id]);
         } catch (Throwable $e) {
             Log::error('Fout bij ophalen van voedselpakket op ID.', [
@@ -46,6 +47,7 @@ class VoedselpakketModel extends Model
     public function sp_GetVoedselpakketProducten($id)
     {
         try {
+            // De regels van het pakket komen apart terug voor het overzicht.
             return DB::select('CALL SP_GetVoedselpakketProducten(:id)', [':id' => $id]);
         } catch (Throwable $e) {
             Log::error('Fout bij ophalen van voedselpakketregels.', [
@@ -60,6 +62,7 @@ class VoedselpakketModel extends Model
     public function sp_CreateVoedselpakket($klantId, $datumSamengesteld, $datumUitgifte, $pakketStatus)
     {
         try {
+            // Nieuwe record aanmaken en het nieuwe ID uit de procedure terughalen.
             $row = DB::selectOne(
                 'CALL SP_CreateVoedselpakket(:p_klantId, :p_datumSamengesteld, :p_datumUitgifte, :p_pakketStatus)',
                 [
@@ -91,7 +94,7 @@ class VoedselpakketModel extends Model
     public function sp_AddVoedselpakketProduct($pakketId, $productId, $aantal)
     {
         try {
-            // Procedure koppelt product aan pakket én verlaagt direct de voorraad.
+            // Koppelt een product aan het pakket en past de voorraad direct aan.
             return DB::selectOne(
                 'CALL SP_AddVoedselpakketProduct(:p_pakketId, :p_productId, :p_aantal)',
                 [
@@ -114,7 +117,7 @@ class VoedselpakketModel extends Model
     public function sp_DeleteVoedselpakketProducten($pakketId)
     {
         try {
-            // Procedure herstelt eerst de voorraad en verwijdert daarna de pakketregels.
+            // Bij verwijderen van regels moet eerst de voorraad teruggezet worden.
             return DB::selectOne('CALL SP_DeleteVoedselpakketProducten(:id)', [':id' => $pakketId]);
         } catch (Throwable $e) {
             Log::error('Fout bij verwijderen van voedselpakketregels.', [
@@ -129,6 +132,7 @@ class VoedselpakketModel extends Model
     public function sp_UpdateVoedselpakket($pakketId, $klantId, $datumSamengesteld, $datumUitgifte, $pakketStatus)
     {
         try {
+            // Alleen de hoofdgegevens van het pakket worden hier bijgewerkt.
             $row = DB::selectOne(
                 'CALL SP_UpdateVoedselpakket(:p_id, :p_klantId, :p_datumSamengesteld, :p_datumUitgifte, :p_pakketStatus)',
                 [
@@ -154,7 +158,7 @@ class VoedselpakketModel extends Model
     public function sp_DeleteVoedselpakket($pakketId)
     {
         try {
-            // Procedure geeft ook een gebruiksvriendelijke boodschap terug bij mislukte delete.
+            // De procedure geeft zowel het resultaat als een eventuele melding terug.
             $row = DB::selectOne('CALL SP_DeleteVoedselpakket(:id)', [':id' => $pakketId]);
 
             return [
