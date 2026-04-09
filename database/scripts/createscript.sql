@@ -7,6 +7,7 @@
 -- 01           08-04-2026      sep                 Genormaliseerd create-script Voedselbank
 -- ***************************************************************
 
+use Voedselbank;
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS VoedselpakketProduct;
 DROP TABLE IF EXISTS Voedselpakket;

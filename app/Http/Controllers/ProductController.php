@@ -6,10 +6,19 @@ use App\Models\ProductModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
+/**
+ * ProductController
+ * 
+ * Beheert alle acties gerelateerd aan producten in de voorraadbeheer.
+ * Alleen beschikbaar voor directie en magazijnmedewerkers.
+ */
 class ProductController extends Controller
 {
     private ProductModel $productModel;
 
+    /**
+     * Constructor - initialiseert ProductModel
+     */
     public function __construct()
     {
         $this->productModel = new ProductModel();
@@ -26,6 +35,8 @@ class ProductController extends Controller
 
     private function productValidationRules(?int $id = null): array
     {
+        // Validatieregels voor product aanmaken/bijwerken
+        // Bij bijwerken: voeg ID toe voor unique constraint
         $eanRule = 'required|digits:13|unique:Product,EAN';
         $productNaamRule = 'required|string|max:150|unique:Product,ProductNaam';
 
@@ -46,6 +57,7 @@ class ProductController extends Controller
 
     private function productValidationMessages(): array
     {
+        // Aangepaste foutmeldingen voor validatie
         return [
             'required' => ':attribute is verplicht.',
             'string' => ':attribute moet tekst zijn.',
@@ -60,6 +72,7 @@ class ProductController extends Controller
 
     private function productValidationAttributes(): array
     {
+        // Gebruiksvriendelijke namen voor validatiefouten
         return [
             'categorie_id' => 'categorie',
             'productnaam' => 'productnaam',
@@ -91,6 +104,10 @@ class ProductController extends Controller
         )->values();
     }
 
+    /**
+     * Toont alle producten in het voorraadbeheer
+     * Ondersteunt filteren op categorie en sorteren
+     */
     public function index(Request $request)
     {
         $this->authorizeVoorraadBeheer();
@@ -123,6 +140,9 @@ class ProductController extends Controller
         ]);
     }
 
+    /**
+     * Toont formulier voor nieuw product
+     */
     public function create()
     {
         $this->authorizeVoorraadBeheer();
@@ -133,6 +153,10 @@ class ProductController extends Controller
         ]);
     }
 
+    /**
+     * Slaat nieuw product op in de database
+     * Valideert invoer en roept stored procedure aan
+     */
     public function store(Request $request)
     {
         $this->authorizeVoorraadBeheer();
@@ -157,6 +181,9 @@ class ProductController extends Controller
             ->with('success', 'Product ' . $validated['productnaam'] . ' succesvol toegevoegd.');
     }
 
+    /**
+     * Toont formulier voor wijzigen van bestaand product
+     */
     public function edit(int $id)
     {
         $this->authorizeVoorraadBeheer();
@@ -172,6 +199,10 @@ class ProductController extends Controller
         ]);
     }
 
+    /**
+     * Werkt bestaand product bij in de database
+     * Valideert invoer en controleert of wijzigingen daadwerkelijk zijn gemaakt
+     */
     public function update(Request $request, int $id)
     {
         $this->authorizeVoorraadBeheer();
@@ -203,6 +234,10 @@ class ProductController extends Controller
             ->with('success', 'Product succesvol bijgewerkt.');
     }
 
+    /**
+     * Verwijdert product uit de database
+     * Controleert of product niet in een voedselpakket wordt gebruikt
+     */
     public function destroy(int $id)
     {
         $this->authorizeVoorraadBeheer();
