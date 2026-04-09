@@ -6,6 +6,7 @@
                 <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Voer het product, de categorie en de voorraad in.</p>
             </div>
 
+            
             @if ($errors->any())
                 <div class="mb-6 rounded-lg bg-red-50 p-4 text-red-800 dark:bg-red-900/20 dark:text-red-200">
                     <h3 class="font-semibold">Controleer uw invoer:</h3>
