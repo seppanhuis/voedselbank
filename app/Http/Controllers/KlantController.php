@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 
 class KlantController extends Controller
 {
+    private const ADMIN_KLANT_EMAIL = 'admin@gmail.com';
+
     private $klantModel;
 
     public function __construct()
@@ -221,6 +223,19 @@ class KlantController extends Controller
      */
     public function destroy($id)
     {
+        $klant = $this->klantModel->sp_GetKlantById($id);
+
+        // Voorkom dat een directie-gebruiker het admin-klantaccount verwijdert.
+        if (
+            auth()->check()
+            && auth()->user()->isDirectie()
+            && $klant
+            && strtolower((string) ($klant->Email ?? '')) === self::ADMIN_KLANT_EMAIL
+        ) {
+            return redirect()->route('klant.index')
+                ->with('error', 'Het admin-account in de klantentabel mag niet verwijderd worden.');
+        }
+
         // Verwijderen en op basis van affected rows feedback tonen.
         $result = $this->klantModel->sp_DeleteKlant($id);
 

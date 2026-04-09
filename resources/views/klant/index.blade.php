@@ -81,14 +81,26 @@
                                         </form>
                                     </td>
                                     <td class="px-3 py-2 text-zinc-700 dark:text-zinc-300">
-                                        <form action="{{ route('klant.destroy', $klant->Id) }}" method="POST"
-                                            onsubmit="return confirm('Weet je zeker dat je deze klant wilt verwijderen?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="inline-flex items-center rounded-md bg-red-600 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-red-700 dark:hover:bg-red-500">
+                                        @php
+                                            $isBeschermdAdminKlant = auth()->check()
+                                                && auth()->user()->isDirectie()
+                                                && strtolower((string) ($klant->Email ?? '')) === 'admin@gmail.com';
+                                        @endphp
+
+                                        @if ($isBeschermdAdminKlant)
+                                            <button type="button" disabled title="Admin-account kan niet verwijderd worden" class="inline-flex cursor-not-allowed items-center rounded-md bg-zinc-400 px-2 py-1 text-xs font-medium text-white opacity-70 dark:bg-zinc-600">
                                                 Verwijderen
                                             </button>
-                                        </form>
+                                        @else
+                                            <form action="{{ route('klant.destroy', $klant->Id) }}" method="POST"
+                                                onsubmit="return confirm('Weet je zeker dat je deze klant wilt verwijderen?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="inline-flex items-center rounded-md bg-red-600 px-2 py-1 text-xs font-medium text-white transition-colors hover:bg-red-700 dark:hover:bg-red-500">
+                                                    Verwijderen
+                                                </button>
+                                            </form>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach

@@ -1,15 +1,28 @@
 -- Step: 01
 -- ***************************************************************
--- Doel : Maak een nieuwe database aan met de naam Voedselbank_Maaskantje
+-- Doel : Verwijder bestaande tabellen en maak ze opnieuw aan
 -- ***************************************************************
 -- Versie       Datum           Auteur              Omschrijving
 -- ******       *****           ******              ************
 -- 01           08-04-2026      sep                 Genormaliseerd create-script Voedselbank
 -- ***************************************************************
 
-DROP DATABASE IF EXISTS `voedselbank`;
-CREATE DATABASE `voedselbank`;
-USE `voedselbank`;
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS VoedselpakketProduct;
+DROP TABLE IF EXISTS Voedselpakket;
+DROP TABLE IF EXISTS KlantSpecifiekeWens;
+DROP TABLE IF EXISTS SpecifiekeWens;
+DROP TABLE IF EXISTS Klant;
+DROP TABLE IF EXISTS LeverancierProduct;
+DROP TABLE IF EXISTS ProductMagazijnLocatie;
+DROP TABLE IF EXISTS MagazijnLocatie;
+DROP TABLE IF EXISTS Magazijn;
+DROP TABLE IF EXISTS Product;
+DROP TABLE IF EXISTS Categorie;
+DROP TABLE IF EXISTS Leverancier;
+DROP TABLE IF EXISTS KlantAdres;
+DROP TABLE IF EXISTS LeverancierAdres;
+SET FOREIGN_KEY_CHECKS = 1;
 
 -- Step: 02
 -- *****************************************************************************************************
@@ -571,7 +584,8 @@ VALUES
  ,(2, 'Familie Peters', '1992-09-03', '+31 6 22334455', 'familie.peters@mail.nl', 1, 1, 1, 1, NULL, SYSDATE(6), SYSDATE(6))
  ,(3, 'Familie El Idrissi', '1984-01-27', '+31 6 33445566', 'familie.elidrissi@mail.nl', 2, 3, 0, 1, NULL, SYSDATE(6), SYSDATE(6))
  ,(4, 'Familie De Vries', '1976-11-19', '+31 6 44556677', 'familie.devries@mail.nl', 2, 0, 0, 1, NULL, SYSDATE(6), SYSDATE(6))
- ,(5, 'Familie Koster', '1990-06-08', '+31 6 55667788', 'familie.koster@mail.nl', 1, 2, 0, 1, NULL, SYSDATE(6), SYSDATE(6));
+ ,(5, 'Familie Koster', '1990-06-08', '+31 6 55667788', 'familie.koster@mail.nl', 1, 2, 0, 1, NULL, SYSDATE(6), SYSDATE(6))
+ ,(1, 'Admin Account', '1985-01-01', '+31 6 00000000', 'admin@gmail.com', 1, 0, 0, 1, 'Gekoppeld aan directie login', SYSDATE(6), SYSDATE(6));
 
 -- Step: 26
 -- *****************************************************************
