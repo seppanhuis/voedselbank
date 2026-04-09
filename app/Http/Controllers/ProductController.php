@@ -17,6 +17,7 @@ class ProductController extends Controller
 
     private function authorizeVoorraadBeheer(): void
     {
+        // Voorraadbeheer is alleen beschikbaar voor directie en magazijnmedewerkers.
         abort_unless(
             auth()->check() && (auth()->user()->isDirectie() || auth()->user()->isMagazijnmedewerker()),
             403
@@ -71,6 +72,7 @@ class ProductController extends Controller
 
     private function sortProducts(Collection $producten, string $sort, string $direction): Collection
     {
+        // Map query-veld naar echte kolomnamen uit het overzicht.
         $allowedSorts = [
             'ean' => 'EAN',
             'productnaam' => 'ProductNaam',
@@ -93,6 +95,7 @@ class ProductController extends Controller
     {
         $this->authorizeVoorraadBeheer();
 
+        // Met ?test=empty kan een lege lijst getest worden.
         $simulateEmpty = collect($request->query())
             ->flatten()
             ->contains(static fn ($value) => strtolower((string) $value) === 'empty');
@@ -105,6 +108,7 @@ class ProductController extends Controller
             ? collect([])
             : collect($this->productModel->sp_GetAllProducten());
 
+        // Filter alleen op categorie wanneer daadwerkelijk een categorie is gekozen.
         if ($categorieId > 0) {
             $producten = $producten->filter(static fn ($product) => (int) ($product->CategorieId ?? 0) === $categorieId);
         }

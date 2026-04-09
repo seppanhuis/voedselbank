@@ -12,6 +12,7 @@ class ProductModel extends Model
     public function sp_GetAllProducten()
     {
         try {
+            // Productoverzicht inclusief joins op categorie wordt in SQL afgehandeld.
             $producten = DB::select('CALL SP_GetAllProducten()');
 
             Log::info('Producten opgehaald.', [
@@ -52,6 +53,7 @@ class ProductModel extends Model
     public function getAllCategorieen()
     {
         try {
+            // Alleen actieve categorieën teruggeven voor dropdowns.
             return DB::select('SELECT Id, CategorieNaam FROM Categorie WHERE IsActief = 1 ORDER BY CategorieNaam');
         } catch (Throwable $e) {
             Log::error('Fout bij ophalen van categorieën.', [
@@ -132,6 +134,7 @@ class ProductModel extends Model
     public function sp_DeleteProduct($id): array
     {
         try {
+            // Procedure geeft extra velden terug om blokkade door pakketkoppelingen te tonen.
             $row = DB::selectOne('CALL SP_DeleteProduct(:id)', [':id' => $id]);
 
             return [

@@ -13,12 +13,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // ====Klant routes==============================================================================
-Route::get('/Klant', [KlantController::class, 'index'])->name('klant.index');
-Route::get('/Klant/create', [KlantController::class, 'create'])->name('klant.create');
-Route::post('/Klant', [KlantController::class, 'store'])->name('klant.store');
-Route::get('/Klant/{id}/edit', [KlantController::class, 'edit'])->name('klant.edit');
-Route::put('/Klant/{id}', [KlantController::class, 'update'])->name('klant.update');
-Route::delete('/Klant/{id}', [KlantController::class, 'destroy'])->name('klant.destroy');
+Route::get('/Klant', [KlantController::class, 'index'])->middleware(['auth', 'verified'])->name('klant.index');
+Route::get('/Klant/create', [KlantController::class, 'create'])->middleware(['auth', 'verified'])->name('klant.create');
+Route::post('/Klant', [KlantController::class, 'store'])->middleware(['auth', 'verified'])->name('klant.store');
+Route::get('/Klant/{id}/edit', [KlantController::class, 'edit'])->middleware(['auth', 'verified'])->name('klant.edit');
+Route::put('/Klant/{id}', [KlantController::class, 'update'])->middleware(['auth', 'verified'])->name('klant.update');
+Route::delete('/Klant/{id}', [KlantController::class, 'destroy'])->middleware(['auth', 'verified'])->name('klant.destroy');
 //================================================================================================
 
 Route::middleware(['auth', 'verified'])->group(function () {

@@ -178,7 +178,7 @@
                 button.closest('[data-regel-row]').remove();
                 updateNames();
             });
-
+ 
             updateNames();
         })();
     </script>

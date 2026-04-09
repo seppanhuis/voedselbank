@@ -16,6 +16,7 @@ class LeverancierController extends Controller
 
     private function authorizeLeverancierBeheer(): void
     {
+        // Alleen directie en magazijnmedewerkers mogen leveranciers beheren.
         abort_unless(
             auth()->check() && (auth()->user()->isDirectie() || auth()->user()->isMagazijnmedewerker()),
             403
@@ -80,6 +81,7 @@ class LeverancierController extends Controller
     {
         $this->authorizeLeverancierBeheer();
 
+        // Met ?test=empty kan een lege tabelweergave getest worden zonder databasegegevens.
         $simulateEmpty = collect($request->query())
             ->flatten()
             ->contains(static fn ($value) => strtolower((string) $value) === 'empty');

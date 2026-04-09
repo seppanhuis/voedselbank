@@ -12,6 +12,7 @@ class LeverancierModel extends Model
     public function sp_GetAllLeveranciers()
     {
         try {
+            // Lees overzicht via stored procedure.
             $leveranciers = DB::select('CALL SP_GetAllLeveranciers()');
 
             Log::info('Leveranciers opgehaald.', [
@@ -52,6 +53,7 @@ class LeverancierModel extends Model
     public function sp_CreateLeverancier($bedrijfsnaam, $contactpersoonNaam, $contactpersoonEmail, $telefoon, $eerstvolgendeLevering, $straat, $huisnummer, $toevoeging, $postcode, $plaats, $land)
     {
         try {
+            // Laat de database leverancier + adres in één procedure aanmaken.
             $row = DB::selectOne(
                 'CALL SP_CreateLeverancier(:p_bedrijfsnaam, :p_contactpersoonNaam, :p_contactpersoonEmail, :p_telefoon, :p_eerstvolgendeLevering, :p_straat, :p_huisnummer, :p_toevoeging, :p_postcode, :p_plaats, :p_land)',
                 [
@@ -129,6 +131,7 @@ class LeverancierModel extends Model
     public function sp_DeleteLeverancier($id): array
     {
         try {
+            // Procedure retourneert zowel affected rows als eventuele blokkade-melding.
             $row = DB::selectOne('CALL SP_DeleteLeverancier(:id)', [':id' => $id]);
 
             $result = [
