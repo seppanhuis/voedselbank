@@ -28,6 +28,7 @@ class VoedselpakketController extends Controller
 
     private function authorizeVoedselpakketBeheer(): void
     {
+        // Vrijwilligers en directie mogen voedselpakketten samenstellen en beheren.
         abort_unless(
             auth()->check() && (auth()->user()->isDirectie() || auth()->user()->isVrijwilliger()),
             403
@@ -76,6 +77,7 @@ class VoedselpakketController extends Controller
     {
         $this->authorizeVoedselpakketBeheer();
 
+        // Handige testmodus voor een lege overzichtspagina.
         $simulateEmpty = collect($request->query())
             ->flatten()
             ->contains(static fn ($value) => strtolower((string) $value) === 'empty');
@@ -109,6 +111,7 @@ class VoedselpakketController extends Controller
 
         $producten = collect($this->productModel->sp_GetAllProducten())->keyBy('Id');
 
+        // Valideer voorraad vooraf, zodat we geen halve transacties krijgen.
         foreach ($validated['pakket_regels'] as $index => $regel) {
             $product = $producten->get((int) $regel['product_id']);
 
@@ -126,6 +129,7 @@ class VoedselpakketController extends Controller
         }
 
         try {
+            // Bewaar pakket en pakketregels atomair in één transactie.
             DB::beginTransaction();
 
             $pakketStatus = $validated['datum_uitgifte'] ? 'Uitgereikt' : 'Samengesteld';
@@ -211,6 +215,7 @@ class VoedselpakketController extends Controller
         $producten = collect($this->productModel->sp_GetAllProducten())->keyBy('Id');
 
         try {
+            // Eerst oude regels opruimen (incl. voorraadherstel), daarna opnieuw opbouwen.
             DB::beginTransaction();
 
             $this->voedselpakketModel->sp_DeleteVoedselpakketProducten($id);

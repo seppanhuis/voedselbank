@@ -12,6 +12,7 @@ class VoedselpakketModel extends Model
     public function sp_GetAllVoedselpakketten()
     {
         try {
+            // Overzicht met klantnaam en totalen komt uit de stored procedure.
             $pakketten = DB::select('CALL SP_GetAllVoedselpakketten()');
 
             Log::info('Voedselpakketten opgehaald.', [
@@ -90,6 +91,7 @@ class VoedselpakketModel extends Model
     public function sp_AddVoedselpakketProduct($pakketId, $productId, $aantal)
     {
         try {
+            // Procedure koppelt product aan pakket én verlaagt direct de voorraad.
             return DB::selectOne(
                 'CALL SP_AddVoedselpakketProduct(:p_pakketId, :p_productId, :p_aantal)',
                 [
@@ -112,6 +114,7 @@ class VoedselpakketModel extends Model
     public function sp_DeleteVoedselpakketProducten($pakketId)
     {
         try {
+            // Procedure herstelt eerst de voorraad en verwijdert daarna de pakketregels.
             return DB::selectOne('CALL SP_DeleteVoedselpakketProducten(:id)', [':id' => $pakketId]);
         } catch (Throwable $e) {
             Log::error('Fout bij verwijderen van voedselpakketregels.', [
@@ -151,6 +154,7 @@ class VoedselpakketModel extends Model
     public function sp_DeleteVoedselpakket($pakketId)
     {
         try {
+            // Procedure geeft ook een gebruiksvriendelijke boodschap terug bij mislukte delete.
             $row = DB::selectOne('CALL SP_DeleteVoedselpakket(:id)', [':id' => $pakketId]);
 
             return [
