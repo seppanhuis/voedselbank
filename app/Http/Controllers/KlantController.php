@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\KlantModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class KlantController extends Controller
 {
@@ -223,28 +225,38 @@ class KlantController extends Controller
      */
     public function destroy($id)
     {
-        $klant = $this->klantModel->sp_GetKlantById($id);
+        try {
+            $klant = $this->klantModel->sp_GetKlantById($id);
 
-        // Voorkom dat een directie-gebruiker het admin-klantaccount verwijdert.
-        if (
-            auth()->check()
-            && auth()->user()->isDirectie()
-            && $klant
-            && strtolower((string) ($klant->Email ?? '')) === self::ADMIN_KLANT_EMAIL
-        ) {
+            // Voorkom dat een directie-gebruiker het admin-klantaccount verwijdert.
+            if (
+                auth()->check()
+                && auth()->user()->isDirectie()
+                && $klant
+                && strtolower((string) ($klant->Email ?? '')) === self::ADMIN_KLANT_EMAIL
+            ) {
+                return redirect()->route('klant.index')
+                    ->with('error', 'Het admin-account in de klantentabel mag niet verwijderd worden.');
+            }
+
+            // Verwijderen en op basis van affected rows feedback tonen.
+            $result = $this->klantModel->sp_DeleteKlant($id);
+
+            if ($result > 0) {
+                return redirect()->route('klant.index')
+                    ->with('success', 'Klant is succesvol verwijdert');
+            }
+
             return redirect()->route('klant.index')
-                ->with('error', 'Het admin-account in de klantentabel mag niet verwijderd worden.');
-        }
+                ->with('error', 'Klant is niet verwijdert');
+        } catch (Throwable $e) {
+            Log::error('Klant verwijderen mislukt.', [
+                'klant_id' => $id,
+                'melding' => $e->getMessage(),
+            ]);
 
-        // Verwijderen en op basis van affected rows feedback tonen.
-        $result = $this->klantModel->sp_DeleteKlant($id);
-
-        if ($result > 0) {
             return redirect()->route('klant.index')
-                ->with('success', 'Klant is succesvol verwijdert');
+                ->with('error', 'Klant kan niet worden verwijderd omdat er nog gekoppelde gegevens bestaan.');
         }
-
-        return redirect()->route('klant.index')
-            ->with('error', 'Klant is niet verwijdert');
     }
 }

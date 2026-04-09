@@ -18,6 +18,19 @@
                     <flux:sidebar.item icon="users" :href="route('klant.index')" :current="request()->routeIs('klant.index')" wire:navigate>
                         {{ __('Klanten') }}
                     </flux:sidebar.item>
+                    @if (auth()->check() && (auth()->user()->isDirectie() || auth()->user()->isMagazijnmedewerker()))
+                        <flux:sidebar.item icon="truck" :href="route('leverancier.index')" :current="request()->routeIs('leverancier.*')" wire:navigate>
+                            {{ __('Leveranciers') }}
+                        </flux:sidebar.item>
+                        <flux:sidebar.item icon="archive-box" :href="route('voorraad.index')" :current="request()->routeIs('voorraad.*')" wire:navigate>
+                            {{ __('Voorraad') }}
+                        </flux:sidebar.item>
+                    @endif
+                    @if (auth()->check() && (auth()->user()->isDirectie() || auth()->user()->isVrijwilliger()))
+                        <flux:sidebar.item icon="clipboard-document-list" :href="route('voedselpakket.index')" :current="request()->routeIs('voedselpakket.*')" wire:navigate>
+                            {{ __('Voedselpakketten') }}
+                        </flux:sidebar.item>
+                    @endif
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 
