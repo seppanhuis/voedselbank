@@ -1,5 +1,4 @@
 DROP PROCEDURE IF EXISTS SP_UpdateProduct;
-
 DELIMITER $$
 
 CREATE PROCEDURE SP_UpdateProduct(
