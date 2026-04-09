@@ -139,7 +139,7 @@ class VoedselpakketModel extends Model
 
     public function sp_UpdateVoedselpakket($pakketId, $klantId, $datumSamengesteld, $datumUitgifte, $pakketStatus)
     {
-        // Werkt de hoofdgegevens van een bestaand pakket bij.
+        // Werkt de hoofdgegevens van een bestaand pakket bij1.
         try {
             // Alleen de hoofdgegevens van het pakket worden hier bijgewerkt.
             $row = DB::selectOne(
