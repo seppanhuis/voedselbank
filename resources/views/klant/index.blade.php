@@ -88,7 +88,7 @@
                                         @endphp
 
                                         @if ($isBeschermdAdminKlant)
-                                            <button type="button" disabled title="Admin-account kan niet verwijderd worden" class="inline-flex cursor-not-allowed items-center rounded-md bg-zinc-400 px-2 py-1 text-xs font-medium text-white opacity-70 dark:bg-zinc-600">
+                                            <button type="button" title="Admin-account kan niet verwijderd worden" onclick="alert('Admin-account kan niet verwijderd worden.');" class="inline-flex cursor-pointer items-center rounded-md bg-zinc-400 px-2 py-1 text-xs font-medium text-white opacity-70 dark:bg-zinc-600">
                                                 Verwijderen
                                             </button>
                                         @else
